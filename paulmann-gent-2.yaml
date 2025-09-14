@@ -18,8 +18,8 @@ blueprint:
       selector:
         device:
           integration: zigbee2mqtt
-          manufacturer: "Paulmann Licht GmbH"
-          model: "501.40"
+          manufacturer: "Paulmann"
+          model_id: "501.40"
 
     # Definition of the actions
     s1_section:

@@ -19,7 +19,8 @@ blueprint:
         device:
           integration: zigbee2mqtt
           manufacturer: "Paulmann"
-          model_id: "'501.40'"
+          model: "RGB remote control"
+          # model_id: "'501.40'"
 
     # Definition of the actions
     s1_section:

@@ -1,5 +1,5 @@
 # Home Assistant blueprint for the Paulmann Gent 2 remote
-Blueprint for Home Assistant, that enables the use of the Paulmann Gent 2 (501.40) remote through ZHA.
+Blueprint for Home Assistant, that enables the use of the Paulmann Gent 2 (501.40) remote through Z2M.
 
 It is probably also working with the Sunricher ZG2868, as stated [here](https://community.home-assistant.io/t/z2m-paulmann-gent-2-rgb-remote/839189). If anyone can confirm this, we could add it to the device selection.
 

@@ -1,9 +1,9 @@
 # Paulmann Gent 2 Blueprint for Home Assistant
 # Version 1.0.0.0
-# By IceBeach7
+# By IceBeach7 - modified by nmaitland
 #
 
-# https://github.com/IceBeach7/HASS-Paulmann-Gent-2
+# https://github.com/nmaitland/HASS-Paulmann-Gent-2
 
 blueprint:
   domain: automation
@@ -12,7 +12,7 @@ blueprint:
 
   input:
     # Remote to use
-    remote:
+    remote_action:
       name: "Paulmann Gent 2 (501.40)"
       description: "The remote connected through Z2M."
       selector:
@@ -519,10 +519,9 @@ mode: parallel
 
 trigger:
     # Listen for any event from the remote.
-  - platform: event
-    event_type: zha_event
+  - platform: sensor
     event_data:
-      device_id: !input "remote"
+      device_id: !input "remote_action"
 
 action:
     # Defines every button for every scene manually. Not the most elegant thing.

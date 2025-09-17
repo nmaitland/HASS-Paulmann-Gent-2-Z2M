@@ -7,20 +7,16 @@
 
 blueprint:
   domain: automation
-  name: "Paulmann Gent 2 (501.40) - Z2M"
+  name: "Paulmann Gent 2 (501.40) - Z2M Grot3"
   description: "Enables the use of the Paulmann Gent 2 remote in Home Assistant through Z2M."
 
   input:
     # Remote to use
     remote_action:
-      name: "Paulmann Gent 2 (501.40)"
-      description: "The remote connected through Z2M."
+      name: Remote MQTT Topic
+      description: "Enter your Paulmann Gent 2 MQTT topic (i.e. zigbee2mqtt/gent2_remote)"
       selector:
-        device:
-          integration: zigbee2mqtt
-          manufacturer: "Paulmann"
-          model: "RGB remote control"
-          # model_id: "'501.40'"
+        text: {}
 
     # Definition of the actions
     s1_section:
@@ -132,7 +128,7 @@ blueprint:
                 - domain: light
           default: {}
 
-        sc1_color_wheel_saturation:
+        sc1_color_wheel_brightness:
           name: "🎚️ Color wheel - Saturation"
           selector:
             number:
@@ -255,7 +251,7 @@ blueprint:
                 - domain: light
           default: {}
 
-        sc2_color_wheel_saturation:
+        sc2_color_wheel_brightness:
           name: "🎚️ Color wheel - Saturation"
           selector:
             number:
@@ -378,7 +374,7 @@ blueprint:
                 - domain: light
           default: {}
 
-        sc3_color_wheel_saturation:
+        sc3_color_wheel_brightness:
           name: "🎚️ Color wheel - Saturation"
           selector:
             number:
@@ -501,7 +497,7 @@ blueprint:
                 - domain: light
           default: {}
 
-        sc4_color_wheel_saturation:
+        sc4_color_wheel_brightness:
           name: "🎚️ Color wheel - Saturation"
           selector:
             number:
@@ -515,420 +511,461 @@ blueprint:
             boolean: {}
           default: false
 
-# When user chooses multiple scenes, it could lead to multiple actions at once.
-mode: parallel
-
 trigger:
-    # Listen for any event from the remote.
-  - platform: sensor
-    event_data:
-      device_id: !input "remote_action"
+  # Listen for any event from the remote.
+- platform: mqtt
+  topic: !input remote_action
 
 action:
-    # Defines every button for every scene manually. Not the most elegant thing.
+  - variables:
+      # Parse the incoming payload using the new variable format
+      split_input: "{{ trigger.payload_json.action.split('_') }}"
+      action: >
+        {% set action_list = namespace(words=[]) %}
+        {% for item in split_input %}
+          {% if not loop.last %}
+            {% if not loop.first %}
+              {% set action_list.words = action_list.words + ['_'] %}
+            {% endif %}
+            {% set action_list.words = action_list.words + [item] %}
+          {% endif %}
+        {% endfor %}
+        {{ action_list.words | join }}
+      instance: "{{ split_input[-1] }}"
   - choose:
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "off_1_1" }}'
-        sequence: !input "sc1_power_off"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "on_1_1" }}'
-        sequence: !input "sc1_power_on"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "brightness_step_down_1" }}'
-        sequence: !input "sc1_brightness_lower"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "brightness_step_up_1" }}'
-        sequence: !input "sc1_brightness_higher"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "color_temperature_step_up_1" }}'
-        sequence: !input "sc1_fire"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "color_temperature_move_1" }}'
-        sequence: !input "sc1_skip"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "color_temperature_step_down_1" }}'
-        sequence: !input "sc1_snow"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "recall_1_1" }}'
-        sequence: !input "sc1_s1"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "recall_1_2" }}'
-        sequence: !input "sc1_s2"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "recall_1_3" }}'
-        sequence: !input "sc1_s3"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "recall_1_4" }}'
-        sequence: !input "sc1_s4"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "recall_1_5" }}'
-        sequence: !input "sc1_s5"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "recall_1_6" }}'
-        sequence: !input "sc1_s6"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "recall_1_7" }}'
-        sequence: !input "sc1_s7"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "move_hue_1" }}'
-        sequence: !input "sc1_repeat"
-
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "move_to_saturation_1" }}'
-        sequence: !input "sc1_color_wheel_button"
-
-
-      # action":"move_to_hue_and_saturation_1","action_hue":191,"action_saturation":214,"action_transition_time":0
-      - conditions:
-          - condition: template
-            value_template: '{{ trigger.event.data.command == "move_to_hue_and_saturation_1" }}'
-        sequence:
-          - variables:
-              light: !input "sc1_color_wheel_light"
-              do_it_anyway: !input "sc1_color_wheel_on_if_off"
-          - if:
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "off" }}'
+      sequence:
+        - choose:
+          - conditions:
               - condition: template
-                value_template: '{{ do_it_anyway or is_state(light, "on") }}'
-            then:
-              - action: light.turn_on
-                target:
-                  entity_id: !input "sc1_color_wheel_light"
-                data:
-                  hs_color:
-                    - "{{ trigger.event.data.params.hue / 255 * 360 }}"
-                    - !input "sc1_color_wheel_saturation"
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_power_off"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_power_off"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_power_off"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_power_off"
 
-# -------------
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "on" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_power_on"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_power_on"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_power_on"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_power_on"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "off_1" }}'
-#         sequence: !input "sc2_power_off"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "brightness_step_down" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_brightness_lower"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_brightness_lower"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_brightness_lower"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_brightness_lower"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "on_1" }}'
-#         sequence: !input "sc2_power_on"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "brightness_step_up" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_brightness_higher"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_brightness_higher"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_brightness_higher"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_brightness_higher"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "step_with_on_off_1" and trigger.event.data.args[0] == 1 }}'
-#         sequence: !input "sc2_brightness_lower"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "color_temperature_step_up" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_fire"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_fire"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_fire"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_fire"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "step_with_on_off_1" and trigger.event.data.args[0] == 0 }}'
-#         sequence: !input "sc2_brightness_higher"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "color_temperature_move" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_skip"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_skip"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_skip"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_skip"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "step_color_temp_1" and trigger.event.data.args[0] == 1 }}'
-#         sequence: !input "sc2_fire"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "color_temperature_step_down" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_snow"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_snow"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_snow"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_snow"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "move_to_color_temp_1" }}'
-#         sequence: !input "sc2_skip"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "recall" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_s1"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_s1"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_s1"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_s1"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "step_color_temp_1" and trigger.event.data.args[0] == 3 }}'
-#         sequence: !input "sc2_snow"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "recall_2" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_s2"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_s2"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_s2"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_s2"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 1 }}'
-#         sequence: !input "sc2_s1"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "recall_3" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_s3"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_s3"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_s3"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_s3"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 2 }}'
-#         sequence: !input "sc2_s2"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "recall_4" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_s4"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_s4"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_s4"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_s4"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 3 }}'
-#         sequence: !input "sc2_s3"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "recall_5" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_s5"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_s5"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_s5"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_s5"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 4 }}'
-#         sequence: !input "sc2_s4"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "recall_6" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_s6"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_s6"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_s6"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_s6"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 5 }}'
-#         sequence: !input "sc2_s5"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "recall_7" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_s7"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_s7"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_s7"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_s7"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 6 }}'
-#         sequence: !input "sc2_s6"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "move_hue" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_repeat"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_repeat"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_repeat"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_repeat"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 7 }}'
-#         sequence: !input "sc2_s7"
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "move_to_saturation" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence: !input "sc1_color_wheel_button"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence: !input "sc2_color_wheel_button"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence: !input "sc3_color_wheel_button"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence: !input "sc4_color_wheel_button"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "move_hue_1" }}'
-#         sequence: !input "sc2_repeat"
+    # action":"move_to_hue_and_saturation","action_hue":191,"action_saturation":214,"action_transition_time":0
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "move_to_hue_and_saturation" }}'
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '1' }}"
+            sequence:
+              - variables:
+                  light: !input "sc1_color_wheel_light"
+                  do_it_anyway: !input "sc1_color_wheel_on_if_off"
+              - if:
+                  - condition: template
+                    value_template: '{{ do_it_anyway or is_state(light, "on") }}'
+                then:
+                  - action: light.turn_on
+                    target:
+                      entity_id: !input "sc1_color_wheel_light"
+                    data:
+                      hs_color:
+                        - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
+                        - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
+                      brightness: !input "sc1_color_wheel_brightness"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '2' }}"
+            sequence:
+              - variables:
+                  light: !input "sc2_color_wheel_light"
+                  do_it_anyway: !input "sc2_color_wheel_on_if_off"
+              - if:
+                  - condition: template
+                    value_template: '{{ do_it_anyway or is_state(light, "on") }}'
+                then:
+                  - action: light.turn_on
+                    target:
+                      entity_id: !input "sc2_color_wheel_light"
+                    data:
+                      hs_color:
+                        - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
+                        - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
+                      brightness: !input "sc2_color_wheel_brightness"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '3' }}"
+            sequence:
+              - variables:
+                  light: !input "sc3_color_wheel_light"
+                  do_it_anyway: !input "sc3_color_wheel_on_if_off"
+              - if:
+                  - condition: template
+                    value_template: '{{ do_it_anyway or is_state(light, "on") }}'
+                then:
+                  - action: light.turn_on
+                    target:
+                      entity_id: !input "sc3_color_wheel_light"
+                    data:
+                      hs_color:
+                        - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
+                        - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
+                      brightness: !input "sc3_color_wheel_brightness"
+          - conditions:
+              - condition: template
+                value_template: "{{ instance == '4' }}"
+            sequence:
+              - variables:
+                  light: !input "sc4_color_wheel_light"
+                  do_it_anyway: !input "sc4_color_wheel_on_if_off"
+              - if:
+                  - condition: template
+                    value_template: '{{ do_it_anyway or is_state(light, "on") }}'
+                then:
+                  - action: light.turn_on
+                    target:
+                      entity_id: !input "sc4_color_wheel_light"
+                    data:
+                      hs_color:
+                        - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
+                        - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
+                      brightness: !input "sc4_color_wheel_brightness"
 
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "move_to_saturation_1" }}'
-#         sequence: !input "sc2_color_wheel_button"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 2 and trigger.event.data.command == "move_to_hue_and_saturation_1" }}'
-#         sequence:
-#           - variables:
-#               light: !input "sc2_color_wheel_light"
-#               do_it_anyway: !input "sc2_color_wheel_on_if_off"
-#           - if:
-#               - condition: template
-#                 value_template: '{{ do_it_anyway or is_state(light, "on") }}'
-#             then:
-#               - action: light.turn_on
-#                 target:
-#                   entity_id: !input "sc2_color_wheel_light"
-#                 data:
-#                   hs_color:
-#                     - "{{ trigger.event.data.params.hue / 255 * 360 }}"
-#                     - !input "sc2_color_wheel_saturation"
-
-# # -------------
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "off_1" }}'
-#         sequence: !input "sc3_power_off"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "on_1" }}'
-#         sequence: !input "sc3_power_on"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "step_with_on_off_1" and trigger.event.data.args[0] == 1 }}'
-#         sequence: !input "sc3_brightness_lower"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "step_with_on_off_1" and trigger.event.data.args[0] == 0 }}'
-#         sequence: !input "sc3_brightness_higher"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "step_color_temp_1" and trigger.event.data.args[0] == 1 }}'
-#         sequence: !input "sc3_fire"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "move_to_color_temp_1" }}'
-#         sequence: !input "sc3_skip"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "step_color_temp_1" and trigger.event.data.args[0] == 3 }}'
-#         sequence: !input "sc3_snow"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 1 }}'
-#         sequence: !input "sc3_s1"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 2 }}'
-#         sequence: !input "sc3_s2"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 3 }}'
-#         sequence: !input "sc3_s3"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 4 }}'
-#         sequence: !input "sc3_s4"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 5 }}'
-#         sequence: !input "sc3_s5"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 6 }}'
-#         sequence: !input "sc3_s6"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 7 }}'
-#         sequence: !input "sc3_s7"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "move_hue_1" }}'
-#         sequence: !input "sc3_repeat"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "move_to_saturation_1" }}'
-#         sequence: !input "sc3_color_wheel_button"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 3 and trigger.event.data.command == "move_to_hue_and_saturation_1" }}'
-#         sequence:
-#           - variables:
-#               light: !input "sc3_color_wheel_light"
-#               do_it_anyway: !input "sc3_color_wheel_on_if_off"
-#           - if:
-#               - condition: template
-#                 value_template: '{{ do_it_anyway or is_state(light, "on") }}'
-#             then:
-#               - action: light.turn_on
-#                 target:
-#                   entity_id: !input "sc3_color_wheel_light"
-#                 data:
-#                   hs_color:
-#                     - "{{ trigger.event.data.params.hue / 255 * 360 }}"
-#                     - !input "sc3_color_wheel_saturation"
-
-# # -------------
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "off_1" }}'
-#         sequence: !input "sc4_power_off"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "on_1" }}'
-#         sequence: !input "sc4_power_on"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "step_with_on_off_1" and trigger.event.data.args[0] == 1 }}'
-#         sequence: !input "sc4_brightness_lower"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "step_with_on_off_1" and trigger.event.data.args[0] == 0 }}'
-#         sequence: !input "sc4_brightness_higher"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "step_color_temp_1" and trigger.event.data.args[0] == 1 }}'
-#         sequence: !input "sc4_fire"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "move_to_color_temp_1" }}'
-#         sequence: !input "sc4_skip"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "step_color_temp_1" and trigger.event.data.args[0] == 3 }}'
-#         sequence: !input "sc4_snow"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 1 }}'
-#         sequence: !input "sc4_s1"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 2 }}'
-#         sequence: !input "sc4_s2"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 3 }}'
-#         sequence: !input "sc4_s3"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 4 }}'
-#         sequence: !input "sc4_s4"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 5 }}'
-#         sequence: !input "sc4_s5"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 6 }}'
-#         sequence: !input "sc4_s6"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "recall_1" and trigger.event.data.args[1] == 7 }}'
-#         sequence: !input "sc4_s7"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "move_hue_1" }}'
-#         sequence: !input "sc4_repeat"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "move_to_saturation_1" }}'
-#         sequence: !input "sc4_color_wheel_button"
-
-#       - conditions:
-#           - condition: template
-#             value_template: '{{ trigger.event.data.endpoint_id == 4 and trigger.event.data.command == "move_to_hue_and_saturation_1" }}'
-#         sequence:
-#           - variables:
-#               light: !input "sc4_color_wheel_light"
-#               do_it_anyway: !input "sc4_color_wheel_on_if_off"
-#           - if:
-#               - condition: template
-#                 value_template: '{{ do_it_anyway or is_state(light, "on") }}'
-#             then:
-#               - action: light.turn_on
-#                 target:
-#                   entity_id: !input "sc4_color_wheel_light"
-#                 data:
-#                   hs_color:
-#                     - "{{ trigger.event.data.params.hue / 255 * 360 }}"
-#                     - !input "sc4_color_wheel_saturation"
-
-    default: []
+mode: parallel

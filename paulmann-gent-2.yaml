@@ -128,6 +128,14 @@ blueprint:
           unit_of_measurement: "mireds"
       default: 40
 
+    # Add this to the blueprint inputs section
+    helper_prefix:
+      name: "Helper Name Prefix"
+      description: "Prefix for the input_text helpers used to store scene data (e.g., 'living_room', 'bedroom', 'paulmann_remote_1'). Helpers will be named: [prefix]_scene_[scene]_[instance]"
+      selector:
+        text: {}
+      default: "paulmann_remote_"    
+
 trigger:
   - platform: mqtt
     topic: !input remote_action
@@ -137,8 +145,14 @@ mode: queued
 action:
   - variables:
       split_input: "{{ trigger.payload_json.action.split('_') }}"
-      action: "{{ split_input[:-1] | join('_') }}"
+      action_parts: "{{ split_input[:-1] }}"
+      action: "{{ action_parts | join('_') }}"
       instance: "{{ split_input[-1] | int }}"
+      
+      # Check if this is a store action
+      is_store_action: "{{ action_parts[0] == 'store' }}"
+      is_recall_action: "{{ action_parts[0] == 'recall' }}"
+      scene_number: "{{ action_parts[1] | int if is_store_action or is_recall_action else 0 }}"
       
       # First get all the input variables
       sc1_light: !input "sc1_light"
@@ -151,8 +165,8 @@ action:
       sc4_color_wheel_brightness: !input "sc4_color_wheel_brightness"
       brightness_step_val: !input "brightness_step"
       color_temp_step_val: !input "color_temp_step"
+      helper_prefix: !input "helper_prefix"
 
-  - variables:
       # Now get the appropriate light and brightness based on instance
       target_light: >
         {% set lights = {
@@ -171,12 +185,136 @@ action:
           4: sc4_color_wheel_brightness
         } %}
         {{ brightness.get(instance, 255) }}
+      
+      # Dynamic storage helper entity names using the configurable prefix
+      storage_entity: "input_text.{{ helper_prefix }}_{{ scene_number }}_{{ instance }}"
+      
+      # Default brightness levels for fallback
+      default_brightness: >
+        {% set defaults = {
+          1: 36,
+          2: 72,
+          3: 108,
+          4: 144,
+          5: 180,
+          6: 216,
+          7: 255
+        } %}
+        {{ defaults.get(scene_number, 255) }}
 
+  - service: persistent_notification.create
+    data:
+      title: "Debug Store Operation"
+      message: |
+        action: {{ action }}
+        instance: {{ instance }}
+        is_store_action: {{ is_store_action }}
+        scene_number: {{ scene_number }}
+        is_recall_action: {{ is_recall_action }}
+        helper_prefix: {{ helper_prefix }}
+        storage_entity: {{ storage_entity }}
+        
   # Only proceed if a light is configured for this instance
   - condition: template
     value_template: "{{ target_light != '' and target_light != 'unavailable' and target_light != 'unknown' }}"
 
   - choose:
+    # Store scene action
+    - conditions:
+        - condition: template
+          value_template: "{{ is_store_action }}"
+      sequence:
+        - service: input_text.set_value
+          target:
+            entity_id: "{{ storage_entity }}"
+          data:
+            value: >
+              {% set light_state = states[target_light] %}
+              {% if light_state.state == 'on' %}
+                {% set attrs = light_state.attributes %}
+                {% if attrs.hs_color is defined %}
+                  {{ {
+                    'hue': attrs.hs_color[0],
+                    'saturation': attrs.hs_color[1],
+                    'brightness': attrs.brightness
+                  } | to_json }}
+                {% elif attrs.color_temp is defined %}
+                  {{ {
+                    'color_temp': attrs.color_temp,
+                    'brightness': attrs.brightness
+                  } | to_json }}
+                {% else %}
+                  {{ {
+                    'brightness': attrs.brightness
+                  } | to_json }}
+                {% endif %}
+              {% else %}
+                {{ {'state': 'off'} | to_json }}
+              {% endif %}
+        - service: persistent_notification.create
+          data:
+            title: "Scene Stored"
+            message: "Scene {{ scene_number }} for instance {{ instance }} has been stored"
+
+    # All recall actions handled in one block
+    - conditions:
+        - condition: template
+          value_template: "{{ is_recall_action }}"
+      sequence:
+        - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states(storage_entity) not in ['unknown', 'unavailable', ''] }}"
+            sequence:
+              - variables:
+                  stored_data: "{{ states(storage_entity) | from_json }}"
+
+              - service: persistent_notification.create
+                data:
+                  title: "Debug Recall Operation"
+                  message: >
+                    {% set data = {} %}
+                    {% if stored_data.get('state') is defined  %}
+                      {% set data = data | combine({'state': stored_data.state}) %}
+                    {% endif %}
+                    {% if stored_data.get('hue') is defined and stored_data.get('saturation') is defined %}
+                      {% set data = data | combine({'hs_color': [stored_data.hue, stored_data.saturation]}) %}
+                    {% endif %}
+                    {% if stored_data.get('color_mode') is defined %}
+                      {% set data = data | combine({'color_mode': stored_data.color_mode}) %}
+                    {% endif %}
+                    {% if stored_data.get('color_temp') is defined %}
+                      {% set data = data | combine({'color_temp': stored_data.color_temp}) %}
+                    {% endif %}
+                    {% if stored_data.get('brightness') is defined %}
+                      {% set data = data | combine({'brightness': stored_data.brightness}) %}
+                    {% endif %}
+                    {{ data }}
+
+              - if:
+                  - condition: template
+                    value_template: "{{ stored_data.get('state') == 'off' }}"
+                then:
+                  - service: light.turn_off
+                    target:
+                      entity_id: "{{ target_light }}"
+                else:
+                  - service: light.turn_on
+                    target:
+                      entity_id: "{{ target_light }}"
+                    data: >
+                      {% set data = {} %}
+                      {% if stored_data.get('hue') is defined and stored_data.get('saturation') is defined %}
+                        {% set data = data | combine({'hs_color': [stored_data.hue, stored_data.saturation]}) %}
+                      {% endif %}
+                      {% if stored_data.get('color_temp') is defined and stored_data.get('color_temp') is number %}
+                        {% set data = data | combine({'color_temp': stored_data.color_temp}) %}
+                      {% endif %}
+                      {% if stored_data.get('brightness') is defined %}
+                        {% set data = data | combine({'brightness': stored_data.brightness}) %}
+                      {% endif %}
+                      {{ data }}
+
     # Power Off
     - conditions:
         - condition: template

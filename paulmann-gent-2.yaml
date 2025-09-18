@@ -1,5 +1,5 @@
-# Paulmann Gent 2 Blueprint for Home Assistant
-# Version 1.0.0.0
+# Paulmann Gent 2 Blueprint for Home Assistant - Simplified
+# Version 2.0.0.0
 # By nmaitland based on zha version by IceBeach7
 #
 
@@ -7,8 +7,8 @@
 
 blueprint:
   domain: automation
-  name: "Paulmann Gent 2 (501.40) - Z2M"
-  description: "Enables the use of the Paulmann Gent 2 remote in Home Assistant through Z2M."
+  name: "Paulmann Gent 2 (501.40) - Z2M for lights"
+  description: "Simplified version - Control up to 4 lights with the Paulmann Gent 2 remote in Home Assistant through Z2M."
 
   input:
     # Remote to use
@@ -18,951 +18,339 @@ blueprint:
       selector:
         text: {}
 
-    # Definition of the actions
+    # Light selections for each scene
     s1_section:
       name: "Scene 1"
       icon: mdi:numeric-1-box
       collapsed: true
       input:
-        sc1_power_off:
-          name: "⏻ Power - Off"
-          selector:
-            action: {}
-          default: []
-
-        sc1_power_on:
-          name: "⏻ Power - On"
-          selector:
-            action: {}
-          default: []
-
-        sc1_brightness_lower:
-          name: "━ Lower brightness"
-          selector:
-            action: {}
-          default: []
-
-        sc1_brightness_higher:
-          name: "✚ Higher brightness"
-          selector:
-            action: {}
-          default: []
-
-        sc1_fire:
-          name: "🔥 Fire"
-          selector:
-            action: {}
-          default: []
-
-        sc1_skip:
-          name: "⏭️ Skip"
-          selector:
-            action: {}
-          default: []
-
-        sc1_snow:
-          name: "❄️ Snow"
-          selector:
-            action: {}
-          default: []
-
-        sc1_s1:
-          name: "🔘 S1"
-          selector:
-            action: {}
-          default: []
-
-        sc1_s2:
-          name: "🔘 S2"
-          selector:
-            action: {}
-          default: []
-
-        sc1_s3:
-          name: "🔘 S3"
-          selector:
-            action: {}
-          default: []
-
-        sc1_s4:
-          name: "🔘 S4"
-          selector:
-            action: {}
-          default: []
-
-        sc1_s5:
-          name: "🔘 S5"
-          selector:
-            action: {}
-          default: []
-
-        sc1_s6:
-          name: "🔘 S6"
-          selector:
-            action: {}
-          default: []
-
-        sc1_s7:
-          name: "🔘 S7"
-          selector:
-            action: {}
-          default: []
-
-        sc1_repeat:
-          name: "🔄 Repeat"
-          selector:
-            action: {}
-          default: []
-
-        sc1_color_wheel_button:
-          name: "◑ Color wheel - Button"
-          selector:
-            action: {}
-          default: []
-
-        sc1_color_wheel_light:
-          name: "💡 Color wheel - Light"
+        sc1_light:
+          name: "💡 Light Device"
+          description: "Select the light to control with Scene 1"
           selector:
             entity:
               filter:
                 - domain: light
-          default: {}
+          default: ""
 
         sc1_color_wheel_brightness:
-          name: "🎚️ Color wheel - Saturation"
+          name: "🎚️ Color wheel - Brightness"
           selector:
             number:
               min: 0
-              max: 100
-          default: 100
-
-        sc1_color_wheel_on_if_off:
-          name: "🧠 Color wheel - Turn on, if off"
-          selector:
-            boolean: {}
-          default: false
+              max: 255
+          default: 127
 
     s2_section:
       name: "Scene 2"
       icon: mdi:numeric-2-box
       collapsed: true
       input:
-        sc2_power_off:
-          name: "⏻ Power - Off"
-          selector:
-            action: {}
-          default: []
-
-        sc2_power_on:
-          name: "⏻ Power - On"
-          selector:
-            action: {}
-          default: []
-
-        sc2_brightness_lower:
-          name: "━ Lower brightness"
-          selector:
-            action: {}
-          default: []
-
-        sc2_brightness_higher:
-          name: "✚ Higher brightness"
-          selector:
-            action: {}
-          default: []
-
-        sc2_fire:
-          name: "🔥 Fire"
-          selector:
-            action: {}
-          default: []
-
-        sc2_skip:
-          name: "⏭️ Skip"
-          selector:
-            action: {}
-          default: []
-
-        sc2_snow:
-          name: "❄️ Snow"
-          selector:
-            action: {}
-          default: []
-
-        sc2_s1:
-          name: "🔘 S1"
-          selector:
-            action: {}
-          default: []
-
-        sc2_s2:
-          name: "🔘 S2"
-          selector:
-            action: {}
-          default: []
-
-        sc2_s3:
-          name: "🔘 S3"
-          selector:
-            action: {}
-          default: []
-
-        sc2_s4:
-          name: "🔘 S4"
-          selector:
-            action: {}
-          default: []
-
-        sc2_s5:
-          name: "🔘 S5"
-          selector:
-            action: {}
-          default: []
-
-        sc2_s6:
-          name: "🔘 S6"
-          selector:
-            action: {}
-          default: []
-
-        sc2_s7:
-          name: "🔘 S7"
-          selector:
-            action: {}
-          default: []
-
-        sc2_repeat:
-          name: "🔄 Repeat"
-          selector:
-            action: {}
-          default: []
-
-        sc2_color_wheel_button:
-          name: "◑ Color wheel - Button"
-          selector:
-            action: {}
-          default: []
-
-        sc2_color_wheel_light:
-          name: "💡 Color wheel - Light"
+        sc2_light:
+          name: "💡 Light Device"
+          description: "Select the light to control with Scene 2"
           selector:
             entity:
               filter:
                 - domain: light
-          default: {}
+          default: ""
 
         sc2_color_wheel_brightness:
-          name: "🎚️ Color wheel - Saturation"
+          name: "🎚️ Color wheel - Brightness"
           selector:
             number:
               min: 0
-              max: 100
-          default: 100
-
-        sc2_color_wheel_on_if_off:
-          name: "🧠 Color wheel - Turn on, if off"
-          selector:
-            boolean: {}
-          default: false
+              max: 255
+          default: 127
 
     s3_section:
       name: "Scene 3"
       icon: mdi:numeric-3-box
       collapsed: true
       input:
-        sc3_power_off:
-          name: "⏻ Power - Off"
-          selector:
-            action: {}
-          default: []
-
-        sc3_power_on:
-          name: "⏻ Power - On"
-          selector:
-            action: {}
-          default: []
-
-        sc3_brightness_lower:
-          name: "━ Lower brightness"
-          selector:
-            action: {}
-          default: []
-
-        sc3_brightness_higher:
-          name: "✚ Higher brightness"
-          selector:
-            action: {}
-          default: []
-
-        sc3_fire:
-          name: "🔥 Fire"
-          selector:
-            action: {}
-          default: []
-
-        sc3_skip:
-          name: "⏭️ Skip"
-          selector:
-            action: {}
-          default: []
-
-        sc3_snow:
-          name: "❄️ Snow"
-          selector:
-            action: {}
-          default: []
-
-        sc3_s1:
-          name: "🔘 S1"
-          selector:
-            action: {}
-          default: []
-
-        sc3_s2:
-          name: "🔘 S2"
-          selector:
-            action: {}
-          default: []
-
-        sc3_s3:
-          name: "🔘 S3"
-          selector:
-            action: {}
-          default: []
-
-        sc3_s4:
-          name: "🔘 S4"
-          selector:
-            action: {}
-          default: []
-
-        sc3_s5:
-          name: "🔘 S5"
-          selector:
-            action: {}
-          default: []
-
-        sc3_s6:
-          name: "🔘 S6"
-          selector:
-            action: {}
-          default: []
-
-        sc3_s7:
-          name: "🔘 S7"
-          selector:
-            action: {}
-          default: []
-
-        sc3_repeat:
-          name: "🔄 Repeat"
-          selector:
-            action: {}
-          default: []
-
-        sc3_color_wheel_button:
-          name: "◑ Color wheel - Button"
-          selector:
-            action: {}
-          default: []
-
-        sc3_color_wheel_light:
-          name: "💡 Color wheel - Light"
+        sc3_light:
+          name: "💡 Light Device"
+          description: "Select the light to control with Scene 3"
           selector:
             entity:
               filter:
                 - domain: light
-          default: {}
+          default: ""
 
         sc3_color_wheel_brightness:
-          name: "🎚️ Color wheel - Saturation"
+          name: "🎚️ Color wheel - Brightness"
           selector:
             number:
               min: 0
-              max: 100
-          default: 100
-
-        sc3_color_wheel_on_if_off:
-          name: "🧠 Color wheel - Turn on, if off"
-          selector:
-            boolean: {}
-          default: false
+              max: 255
+          default: 127
 
     s4_section:
       name: "Scene 4"
       icon: mdi:numeric-4-box
       collapsed: true
       input:
-        sc4_power_off:
-          name: "⏻ Power - Off"
-          selector:
-            action: {}
-          default: []
-
-        sc4_power_on:
-          name: "⏻ Power - On"
-          selector:
-            action: {}
-          default: []
-
-        sc4_brightness_lower:
-          name: "━ Lower brightness"
-          selector:
-            action: {}
-          default: []
-
-        sc4_brightness_higher:
-          name: "✚ Higher brightness"
-          selector:
-            action: {}
-          default: []
-
-        sc4_fire:
-          name: "🔥 Fire"
-          selector:
-            action: {}
-          default: []
-
-        sc4_skip:
-          name: "⏭️ Skip"
-          selector:
-            action: {}
-          default: []
-
-        sc4_snow:
-          name: "❄️ Snow"
-          selector:
-            action: {}
-          default: []
-
-        sc4_s1:
-          name: "🔘 S1"
-          selector:
-            action: {}
-          default: []
-
-        sc4_s2:
-          name: "🔘 S2"
-          selector:
-            action: {}
-          default: []
-
-        sc4_s3:
-          name: "🔘 S3"
-          selector:
-            action: {}
-          default: []
-
-        sc4_s4:
-          name: "🔘 S4"
-          selector:
-            action: {}
-          default: []
-
-        sc4_s5:
-          name: "🔘 S5"
-          selector:
-            action: {}
-          default: []
-
-        sc4_s6:
-          name: "🔘 S6"
-          selector:
-            action: {}
-          default: []
-
-        sc4_s7:
-          name: "🔘 S7"
-          selector:
-            action: {}
-          default: []
-
-        sc4_repeat:
-          name: "🔄 Repeat"
-          selector:
-            action: {}
-          default: []
-
-        sc4_color_wheel_button:
-          name: "◑ Color wheel - Button"
-          selector:
-            action: {}
-          default: []
-
-        sc4_color_wheel_light:
-          name: "💡 Color wheel - Light"
+        sc4_light:
+          name: "💡 Light Device"
+          description: "Select the light to control with Scene 4"
           selector:
             entity:
               filter:
                 - domain: light
-          default: {}
+          default: ""
 
         sc4_color_wheel_brightness:
-          name: "🎚️ Color wheel - Saturation"
+          name: "🎚️ Color wheel - Brightness"
           selector:
             number:
               min: 0
-              max: 100
-          default: 100
+              max: 255
+          default: 127
 
-        sc4_color_wheel_on_if_off:
-          name: "🧠 Color wheel - Turn on, if off"
-          selector:
-            boolean: {}
-          default: false
+    # Global settings
+    brightness_step:
+      name: "🔆 Brightness Step"
+      description: "Percentage to increase/decrease brightness"
+      selector:
+        number:
+          min: 1
+          max: 50
+          unit_of_measurement: "%"
+      default: 10
+
+    color_temp_step:
+      name: "🌡️ Color Temperature Step"
+      description: "Amount to change color temperature"
+      selector:
+        number:
+          min: 10
+          max: 100
+          unit_of_measurement: "mireds"
+      default: 40
 
 trigger:
-  # Listen for any event from the remote.
-- platform: mqtt
-  topic: !input remote_action
+  - platform: mqtt
+    topic: !input remote_action
 
 mode: queued
 
 action:
   - variables:
-      # Parse the incoming payload using the new variable format
       split_input: "{{ trigger.payload_json.action.split('_') }}"
       action: "{{ split_input[:-1] | join('_') }}"
       instance: "{{ split_input[-1] | int }}"
-
-  - service: persistent_notification.create
-    data:
-      title: "Paulmann Gent 2 Debug"
-      message: "JSON payload: {{ trigger.payload_json }}, action: {{ action }}, instance: {{ instance }}"
       
+      # First get all the input variables
+      sc1_light: !input "sc1_light"
+      sc2_light: !input "sc2_light"
+      sc3_light: !input "sc3_light"
+      sc4_light: !input "sc4_light"
+      sc1_color_wheel_brightness: !input "sc1_color_wheel_brightness"
+      sc2_color_wheel_brightness: !input "sc2_color_wheel_brightness"
+      sc3_color_wheel_brightness: !input "sc3_color_wheel_brightness"
+      sc4_color_wheel_brightness: !input "sc4_color_wheel_brightness"
+      brightness_step_val: !input "brightness_step"
+      color_temp_step_val: !input "color_temp_step"
+
+  - variables:
+      # Now get the appropriate light and brightness based on instance
+      target_light: >
+        {% set lights = {
+          1: sc1_light,
+          2: sc2_light,
+          3: sc3_light,
+          4: sc4_light
+        } %}
+        {{ lights.get(instance, "") }}
+      
+      target_brightness: >
+        {% set brightness = {
+          1: sc1_color_wheel_brightness,
+          2: sc2_color_wheel_brightness,
+          3: sc3_color_wheel_brightness,
+          4: sc4_color_wheel_brightness
+        } %}
+        {{ brightness.get(instance, 255) }}
+
+  # Only proceed if a light is configured for this instance
+  - condition: template
+    value_template: "{{ target_light != '' and target_light != 'unavailable' and target_light != 'unknown' }}"
+
   - choose:
+    # Power Off
     - conditions:
         - condition: template
           value_template: '{{ action == "off" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_power_off"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_power_off"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_power_off"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_power_off"
+        - service: light.toggle
+          target:
+            entity_id: "{{ target_light }}"
 
+    # Power On
     - conditions:
         - condition: template
           value_template: '{{ action == "on" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_power_on"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_power_on"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_power_on"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_power_on"
+        - service: light.toggle
+          target:
+            entity_id: "{{ target_light }}"
 
+    # Brightness Down
     - conditions:
         - condition: template
           value_template: '{{ action == "brightness_step_down" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_brightness_lower"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_brightness_lower"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_brightness_lower"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_brightness_lower"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness_step_pct: "{{ -brightness_step_val }}"
 
+    # Brightness Up
     - conditions:
         - condition: template
           value_template: '{{ action == "brightness_step_up" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_brightness_higher"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_brightness_higher"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_brightness_higher"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_brightness_higher"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness_step_pct: "{{ brightness_step_val }}"
 
+    # Fire (Warmer color temperature)
     - conditions:
         - condition: template
           value_template: '{{ action == "color_temperature_step_up" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_fire"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_fire"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_fire"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_fire"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            color_temp: "{{ [state_attr(target_light, 'color_temp') + color_temp_step_val, 500] | min }}"
 
-    - conditions:
-        - condition: template
-          value_template: '{{ action == "color_temperature_move" }}'
-      sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_skip"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_skip"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_skip"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_skip"
-
+    # Snow (Cooler color temperature)
     - conditions:
         - condition: template
           value_template: '{{ action == "color_temperature_step_down" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_snow"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_snow"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_snow"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_snow"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            color_temp: "{{ [state_attr(target_light, 'color_temp') - color_temp_step_val, 153] | max }}"
 
+    # Scene presets (S1-S7) - Different brightness levels
     - conditions:
         - condition: template
           value_template: '{{ action == "recall_1" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_s1"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_s1"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_s1"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_s1"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness: 36  # ~14%
 
     - conditions:
         - condition: template
           value_template: '{{ action == "recall_2" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_s2"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_s2"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_s2"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_s2"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness: 72  # ~28%
 
     - conditions:
         - condition: template
           value_template: '{{ action == "recall_3" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_s3"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_s3"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_s3"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_s3"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness: 108  # ~42%
 
     - conditions:
         - condition: template
           value_template: '{{ action == "recall_4" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_s4"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_s4"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_s4"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_s4"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness: 144  # ~56%
 
     - conditions:
         - condition: template
           value_template: '{{ action == "recall_5" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_s5"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_s5"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_s5"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_s5"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness: 180  # ~70%
 
     - conditions:
         - condition: template
           value_template: '{{ action == "recall_6" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_s6"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_s6"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_s6"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_s6"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness: 216  # ~84%
 
     - conditions:
         - condition: template
           value_template: '{{ action == "recall_7" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_s7"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_s7"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_s7"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_s7"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            brightness: 255  # 100%
 
+    # Skip - Cycle through common colors
+    - conditions:
+        - condition: template
+          value_template: '{{ action == "color_temperature_move" }}'
+      sequence:
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            rgb_color: [255, 255, 255]  # White
+
+    # Repeat - Toggle light
     - conditions:
         - condition: template
           value_template: '{{ action == "move_hue" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_repeat"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_repeat"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_repeat"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_repeat"
+        - service: light.toggle
+          target:
+            entity_id: "{{ target_light }}"
 
+    # Color wheel button press
     - conditions:
         - condition: template
           value_template: '{{ action == "move_to_saturation" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence: !input "sc1_color_wheel_button"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence: !input "sc2_color_wheel_button"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence: !input "sc3_color_wheel_button"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence: !input "sc4_color_wheel_button"
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            effect: "colorloop"
 
-    # action":"move_to_hue_and_saturation","action_hue":191,"action_saturation":214,"action_transition_time":0
+    # Color wheel movement - Set hue and saturation
     - conditions:
         - condition: template
           value_template: '{{ action == "move_to_hue_and_saturation" }}'
       sequence:
-        - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 1 }}"
-            sequence:
-              - variables:
-                  light: !input "sc1_color_wheel_light"
-                  do_it_anyway: !input "sc1_color_wheel_on_if_off"
-              - if:
-                  - condition: template
-                    value_template: '{{ do_it_anyway or is_state(light, "on") }}'
-                then:
-                  - action: light.turn_on
-                    target:
-                      entity_id: !input "sc1_color_wheel_light"
-                    data:
-                      hs_color:
-                        - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
-                        - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
-                      brightness: !input "sc1_color_wheel_brightness"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 2 }}"
-            sequence:
-              - variables:
-                  light: !input "sc2_color_wheel_light"
-                  do_it_anyway: !input "sc2_color_wheel_on_if_off"
-              - if:
-                  - condition: template
-                    value_template: '{{ do_it_anyway or is_state(light, "on") }}'
-                then:
-                  - action: light.turn_on
-                    target:
-                      entity_id: !input "sc2_color_wheel_light"
-                    data:
-                      hs_color:
-                        - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
-                        - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
-                      brightness: !input "sc2_color_wheel_brightness"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 3 }}"
-            sequence:
-              - variables:
-                  light: !input "sc3_color_wheel_light"
-                  do_it_anyway: !input "sc3_color_wheel_on_if_off"
-              - if:
-                  - condition: template
-                    value_template: '{{ do_it_anyway or is_state(light, "on") }}'
-                then:
-                  - action: light.turn_on
-                    target:
-                      entity_id: !input "sc3_color_wheel_light"
-                    data:
-                      hs_color:
-                        - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
-                        - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
-                      brightness: !input "sc3_color_wheel_brightness"
-          - conditions:
-              - condition: template
-                value_template: "{{ instance == 4 }}"
-            sequence:
-              - variables:
-                  light: !input "sc4_color_wheel_light"
-                  do_it_anyway: !input "sc4_color_wheel_on_if_off"
-              - if:
-                  - condition: template
-                    value_template: '{{ do_it_anyway or is_state(light, "on") }}'
-                then:
-                  - action: light.turn_on
-                    target:
-                      entity_id: !input "sc4_color_wheel_light"
-                    data:
-                      hs_color:
-                        - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
-                        - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
-                      brightness: !input "sc4_color_wheel_brightness"
-
+        - service: light.turn_on
+          target:
+            entity_id: "{{ target_light }}"
+          data:
+            hs_color:
+              - "{{ trigger.payload_json.action_hue / 255 * 360 }}"
+              - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
+            brightness: "{{ target_brightness }}"

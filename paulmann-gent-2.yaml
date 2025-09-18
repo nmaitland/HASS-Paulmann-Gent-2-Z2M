@@ -1,13 +1,13 @@
 # Paulmann Gent 2 Blueprint for Home Assistant
 # Version 1.0.0.0
-# By IceBeach7 - modified by nmaitland
+# By nmaitland based on zha version by IceBeach7
 #
 
 # https://github.com/nmaitland/HASS-Paulmann-Gent-2
 
 blueprint:
   domain: automation
-  name: "Paulmann Gent 2 (501.40) - Z2M Grot3"
+  name: "Paulmann Gent 2 (501.40) - Z2M"
   description: "Enables the use of the Paulmann Gent 2 remote in Home Assistant through Z2M."
 
   input:
@@ -516,6 +516,8 @@ trigger:
 - platform: mqtt
   topic: !input remote_action
 
+mode: queued
+
 action:
   - variables:
       # Parse the incoming payload using the new variable format
@@ -532,6 +534,12 @@ action:
         {% endfor %}
         {{ action_list.words | join }}
       instance: "{{ split_input[-1] }}"
+
+  - service: logbook.log
+    data:
+      name: "Paulmann Gent 2 Debug"
+      message: "JSON payload: {{ trigger.payload_json }}, action: {{ action }}, instance: {{ instance }}"
+      
   - choose:
     - conditions:
         - condition: template
@@ -540,19 +548,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_power_off"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_power_off"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_power_off"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_power_off"
 
     - conditions:
@@ -562,19 +570,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_power_on"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_power_on"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_power_on"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_power_on"
 
     - conditions:
@@ -584,19 +592,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_brightness_lower"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_brightness_lower"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_brightness_lower"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_brightness_lower"
 
     - conditions:
@@ -606,19 +614,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_brightness_higher"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_brightness_higher"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_brightness_higher"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_brightness_higher"
 
     - conditions:
@@ -628,19 +636,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_fire"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_fire"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_fire"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_fire"
 
     - conditions:
@@ -650,19 +658,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_skip"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_skip"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_skip"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_skip"
 
     - conditions:
@@ -672,41 +680,41 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_snow"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_snow"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_snow"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_snow"
 
     - conditions:
         - condition: template
-          value_template: '{{ action == "recall" }}'
+          value_template: '{{ action == "recall_1" }}'
       sequence:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_s1"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_s1"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_s1"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_s1"
 
     - conditions:
@@ -716,19 +724,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_s2"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_s2"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_s2"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_s2"
 
     - conditions:
@@ -738,19 +746,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_s3"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_s3"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_s3"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_s3"
 
     - conditions:
@@ -760,19 +768,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_s4"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_s4"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_s4"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_s4"
 
     - conditions:
@@ -782,19 +790,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_s5"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_s5"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_s5"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_s5"
 
     - conditions:
@@ -804,19 +812,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_s6"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_s6"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_s6"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_s6"
 
     - conditions:
@@ -826,19 +834,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_s7"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_s7"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_s7"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_s7"
 
     - conditions:
@@ -848,19 +856,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_repeat"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_repeat"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_repeat"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_repeat"
 
     - conditions:
@@ -870,19 +878,19 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence: !input "sc1_color_wheel_button"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence: !input "sc2_color_wheel_button"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence: !input "sc3_color_wheel_button"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence: !input "sc4_color_wheel_button"
 
     # action":"move_to_hue_and_saturation","action_hue":191,"action_saturation":214,"action_transition_time":0
@@ -893,7 +901,7 @@ action:
         - choose:
           - conditions:
               - condition: template
-                value_template: "{{ instance == '1' }}"
+                value_template: "{{ instance == 1 }}"
             sequence:
               - variables:
                   light: !input "sc1_color_wheel_light"
@@ -912,7 +920,7 @@ action:
                       brightness: !input "sc1_color_wheel_brightness"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '2' }}"
+                value_template: "{{ instance == 2 }}"
             sequence:
               - variables:
                   light: !input "sc2_color_wheel_light"
@@ -931,7 +939,7 @@ action:
                       brightness: !input "sc2_color_wheel_brightness"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '3' }}"
+                value_template: "{{ instance == 3 }}"
             sequence:
               - variables:
                   light: !input "sc3_color_wheel_light"
@@ -950,7 +958,7 @@ action:
                       brightness: !input "sc3_color_wheel_brightness"
           - conditions:
               - condition: template
-                value_template: "{{ instance == '4' }}"
+                value_template: "{{ instance == 4 }}"
             sequence:
               - variables:
                   light: !input "sc4_color_wheel_light"
@@ -968,4 +976,3 @@ action:
                         - "{{ trigger.payload_json.action_saturation / 255 * 100 }}"
                       brightness: !input "sc4_color_wheel_brightness"
 
-mode: parallel

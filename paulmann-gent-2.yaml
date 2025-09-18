@@ -522,22 +522,12 @@ action:
   - variables:
       # Parse the incoming payload using the new variable format
       split_input: "{{ trigger.payload_json.action.split('_') }}"
-      action: >
-        {% set action_list = namespace(words=[]) %}
-        {% for item in split_input %}
-          {% if not loop.last %}
-            {% if not loop.first %}
-              {% set action_list.words = action_list.words + ['_'] %}
-            {% endif %}
-            {% set action_list.words = action_list.words + [item] %}
-          {% endif %}
-        {% endfor %}
-        {{ action_list.words | join }}
-      instance: "{{ split_input[-1] }}"
+      action: "{{ split_input[:-1] | join('_') }}"
+      instance: "{{ split_input[-1] | int }}"
 
-  - service: logbook.log
+  - service: persistent_notification.create
     data:
-      name: "Paulmann Gent 2 Debug"
+      title: "Paulmann Gent 2 Debug"
       message: "JSON payload: {{ trigger.payload_json }}, action: {{ action }}, instance: {{ instance }}"
       
   - choose:
